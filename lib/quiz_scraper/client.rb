@@ -21,7 +21,7 @@ module QuizScraper
         case temp = param
         when :all, 'all' then temp.to_sym
         when String then temp =~ /^\d+$/ and $&.to_i
-        when Fixnum then temp
+        when Integer then temp
         end
       end
       param || :default
