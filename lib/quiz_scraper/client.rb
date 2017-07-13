@@ -8,8 +8,8 @@ module QuizScraper
     end
 
     def find_all(params = {})
-      # delegates everything to client something like:
-      # client.send(:find_all, params)
+      page = extract_page_param(params) if client.paginated
+      page && client.send(:find_all, page) || client.send(:find_all)
     end
 
     private
