@@ -12,6 +12,10 @@ module QuizScraper
       page && client.send(:find_all, page) || client.send(:find_all)
     end
 
+    def find(reference)
+      client.send(:find, reference)
+    end
+
     private
 
     def extract_page_param(params)
