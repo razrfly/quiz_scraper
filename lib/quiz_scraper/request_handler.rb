@@ -4,6 +4,7 @@ module QuizScraper
 
     def self.extended(client)
       client.include(HTTParty)
+      client.base_uri(client.base_url)
     end
 
     private
