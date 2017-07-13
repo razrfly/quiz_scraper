@@ -14,6 +14,19 @@ module QuizScraper
 
     private
 
+    def extract_page_param(params)
+      return :default if params.empty?
+      param = params.fetch(:page, nil)
+      param &&= begin
+        case temp = param
+        when :all, 'all' then temp.to_sym
+        when String then temp =~ /^\d+$/ and $&.to_i
+        when Fixnum then temp
+        end
+      end
+      param || :default
+    end
+
     def extend_client
       client.tap do |client|
         require 'active_support/inflector'
