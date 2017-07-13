@@ -30,6 +30,23 @@ class PubQuizzer
   }
   private_constant(:Table)
 
+  PubQuiz = ->(response) {
+    table = process(response) { |document| document.css('#quiz-table') }
+    trows = table.css('tr')
+    text = ->(row) { row.css('td').first.text.sub(/^\s/, '') }
+    link = ->(row) { row.css('td').css('a[href]').first['href'] }
+
+    {
+      'name' => text.(trows[0]), 'location' => text.(trows[1]),
+      'post_code' => text.(trows[2]), 'phone' => text.(trows[3]),
+      'website' => link.(trows[4]), 'frequency' => text.(trows[5]),
+      'entry_fee' => text.(trows[6]), 'jackpot' => text.(trows[7]),
+      'other_prices' => text.(trows[8]), 'max_team_size' => text.(trows[9]),
+      'verified' => text.(trows[10])
+    }
+  }
+  private_constant(:PubQuiz)
+
   class << self
     attr_accessor :base_url, :paginated
 
@@ -64,6 +81,10 @@ class PubQuizzer
           result << fetch_row.(row)
         end
       end
+    end
+
+    def find(reference)
+      PubQuiz.(send_request(reference))
     end
   end
 end
