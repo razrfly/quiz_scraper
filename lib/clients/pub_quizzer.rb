@@ -39,13 +39,30 @@ class PubQuizzer
     private
 
     def find_all(page)
+      table = Table.(send_request('/search.php'))
+      headers, paginate_links = table[:headers], table[:paginate_links]
+
+      fetch_row = ->(row) {
+        headers.each_with_object({}).with_index do |(key, result), index|
+          result[key] = row[index]
+        end
+      }
+
       case page
       when :default
-        # logic when called without and page param
+        table[:trows].each_with_object([]) do |row, result|
+          result << fetch_row.(row)
+        end
       when :all
-        # logic when need to fetch data from whole table
+        paginate_links.values.each_with_object([]) do |link, result|
+          table = Table.(send_request(link))
+          table[:trows].each { |row| result << fetch_row.(row) }
+        end
       else
-        # logic for specific page
+        table = Table.(send_request(paginate_links[page]))
+        table[:trows].each_with_object([]) do |row, result|
+          result << fetch_row.(row)
+        end
       end
     end
   end
