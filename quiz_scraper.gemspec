@@ -28,4 +28,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "nokogiri", "~> 1.8.0"
   spec.add_dependency "httparty", "~> 0.15.5"
+  spec.add_dependency "activesupport", "~> 5.0"
 end
