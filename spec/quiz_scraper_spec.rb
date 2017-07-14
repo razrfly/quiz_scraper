@@ -21,5 +21,22 @@ RSpec.describe QuizScraper do
       adapter = scraper_adapter.new(:pub_quizzer)
       expect(adapter.scraper).to eq(QuizScraper::PubQuizzer)
     end
+
+    context "extends specific scraper" do
+      let(:extended_scraper) { scraper_adapter.new(:pub_quizzer).scraper }
+      let(:singleton_klass) { extended_scraper.singleton_class }
+
+      it "defines +process+ private singleton method" do
+        expect(singleton_klass.private_method_defined?(:process)).to be_truthy
+      end
+
+      it "defines +send_request+ private singleton method" do
+        expect(singleton_klass.private_method_defined?(:send_request)).to be_truthy
+      end
+
+      it "extends scraper with ActiveSupport::Inflector methods" do
+        expect(extended_scraper.respond_to?(:parameterize)).to be_truthy
+      end
+    end
   end
 end
