@@ -2,6 +2,7 @@ module QuizScraper
   module ScraperLoader
     require 'active_support/inflector'
     extend ActiveSupport::Inflector
+
     UndefinedScraperError = Class.new(StandardError)
 
     class << self
