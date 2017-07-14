@@ -3,8 +3,7 @@ module QuizScraper
     attr_reader :scraper
 
     def initialize(scraper)
-      raise ArgumentError unless scraper.is_a?(Class)
-      @scraper = scraper and extend_scraper
+      @scraper = ScraperLoader.call(scraper)
     end
 
     def find_all(params = {})
@@ -29,15 +28,6 @@ module QuizScraper
         end
       end
       param || :default
-    end
-
-    def extend_scraper
-      scraper.tap do |scraper|
-        require 'active_support/inflector'
-        scraper.extend(QuizScraper::RequestHandler)
-        scraper.extend(QuizScraper::RequestProcessor)
-        scraper.extend(ActiveSupport::Inflector)
-      end
     end
   end
 end
