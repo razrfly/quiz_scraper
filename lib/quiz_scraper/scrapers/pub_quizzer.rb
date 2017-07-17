@@ -21,9 +21,11 @@ module QuizScraper
       trows = -> {
         trows = table.css('tbody').css('tr')
         trows.each_with_object([]) do |row, result|
-          reference, data = row.css('a[href]').first['href'], row.text.split(?\n)
-          data[2].sub!(/^.-./, '') # location fix
-          result << (data[1..-1] << reference)
+          reference, data = row.css('a[href]').first['href']
+          data = row.css('td').map(&:text)
+          data[1].sub!(/^.-./, '') # location fix
+
+          result << (data << reference)
         end
       }.call
 
