@@ -1,6 +1,7 @@
 module QuizScraper
   module RequestHandler
     require 'httparty'
+
     ResponseError = Class.new(StandardError)
 
     def self.extended(client)
