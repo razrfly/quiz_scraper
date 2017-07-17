@@ -8,11 +8,11 @@ module QuizScraper
 
     def find_all(params = {})
       page = extract_page_param(params) if scraper.paginated
-      page && scraper.send(:find_all, page) || scraper.send(:find_all)
+      page && scraper.find_all(page) || scraper.find_all
     end
 
     def find(reference)
-      scraper.send(:find, reference)
+      scraper.find(reference)
     end
 
     private
