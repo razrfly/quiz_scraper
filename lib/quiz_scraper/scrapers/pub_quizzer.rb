@@ -54,8 +54,6 @@ module QuizScraper
       PubQuizzer.base_url = 'http://www.pubquizzers.com'
       PubQuizzer.paginated = true
 
-      private
-
       def find_all(page)
         table = Table.(send_request('/search.php'))
         headers, paginate_links = table[:headers], table[:paginate_links]
@@ -89,4 +87,6 @@ module QuizScraper
       end
     end
   end
+
+  private_constant :PubQuizzer
 end
