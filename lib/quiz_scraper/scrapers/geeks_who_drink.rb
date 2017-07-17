@@ -20,6 +20,13 @@ module QuizScraper
       GeeksWhoDrink.paginated = false
 
       def find_all
+        auth = Credentials.(send_request('/schedule'))
+
+        base_uri auth[:host]
+
+        params = { basic_auth: { user: auth[:user], password: auth[:password] } }
+
+        Collection.(send_request('/website/venue/_search?from=0&size=2000', params))
       end
 
       def find
