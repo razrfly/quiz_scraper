@@ -1,10 +1,10 @@
 module QuizScraper
   module PubQuizzer
-    Table = ->(response) {
-      table = process(response) { |document| document.css('#rounded-corner') }
+    Collection = ->(response) {
+      data = process(response) { |document| document.css('#rounded-corner') }
 
       @headers ||= -> {
-        headers = table.css('thead').css('tr').css('th').text and headers[0] = ''
+        headers = data.css('thead').css('tr').css('th').text and headers[0] = ''
         headers = headers.split("\n").map do |header|
           parameterize(header.strip, separator: ?_)
         end
@@ -12,22 +12,22 @@ module QuizScraper
       }.call
 
       @paginate_links ||= -> {
-        links = table.css('tfoot').css('tr').css('td.rounded-foot-left').css('b')
+        links = data.css('tfoot').css('tr').css('td.rounded-foot-left').css('b')
         links.css('a[href]').each_with_object({}).with_index do |(link, result), i|
           result[i + 1] = link["href"].sub(%r(#{base_url}), '')
         end
       }.call
 
-      trows = -> {
-        trows = table.css('tbody').css('tr')
-        trows = trows.each_with_object([]) do |row, result|
-          # fetch data from table row and fix for location
+      venues = -> {
+        trows = data.css('tbody').css('tr')
+        venues = trows.each_with_object([]) do |row, result|
+          # fetch data from venue row and fix for location
           data = row.css('td').map(&:text) and data[1].sub!(/^.-./, '')
 
           # create reference for further use and add it to data
           reference = row.css('a[href]').first['href'] and data << reference
 
-          raw_data = headers.each_with_object({}).with_index do |(key, temp), index|
+          raw_data = @headers.each_with_object({}).with_index do |(key, temp), index|
             temp[key] = data[index]
           end
 
@@ -39,9 +39,9 @@ module QuizScraper
         end
       }.call
 
-      { headers: @headers, trows: trows, paginate_links: @paginate_links }
+      { headers: @headers, venues: venues, paginate_links: @paginate_links }
     }
-    private_constant(:Table)
+    private_constant(:Collection)
 
     PubQuiz = ->(response) {
       table = process(response) { |document| document.css('#quiz-table') }
@@ -67,29 +67,29 @@ module QuizScraper
       PubQuizzer.paginated = true
 
       def find_all(page)
-        table = Table.(send_request('/search.php'))
+        collection = Collection.(send_request('/search.php'))
 
         case page
         when :default
-          table[:trows].each_with_object([]) do |row, result|
-            result << QuizScraper::Quiz.new(row, source: self)
+          collection[:venues].each_with_object([]) do |venue, result|
+            result << QuizScraper::Quiz.new(venue, source: self)
           end
         when :all
           paginate_links = table[:paginate_links]
 
           paginate_links.values.each_with_object([]) do |link, result|
-            table = Table.(send_request(link))
+            collection = Collection.(send_request(link))
 
-            table[:trows].each do |row|
-              result << QuizScraper::Quiz.new(row, source: self)
+            collection[:venues].each do |venue|
+              result << QuizScraper::Quiz.new(venue, source: self)
             end
           end
         else
           paginate_links = table[:paginate_links]
-          table = Table.(send_request(paginate_links[page]))
+          collection = Collection.(send_request(paginate_links[page]))
 
-          table[:trows].each_with_object([]) do |row, result|
-            result << QuizScraper::Quiz.new(row, source: self)
+          collection[:venues].each_with_object([]) do |venue, result|
+            result << QuizScraper::Quiz.new(venue, source: self)
           end
         end
       end
