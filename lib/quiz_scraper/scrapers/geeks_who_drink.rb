@@ -44,9 +44,11 @@ module QuizScraper
           }
         }
 
-        Collection.(
+        collection = Collection.(
           send_request('/website/venue/_search?from=0&size=2000', params)
         )
+
+        collection.map { |item| QuizScraper::Quiz.new(item, source: self) }
       end
 
       def find
