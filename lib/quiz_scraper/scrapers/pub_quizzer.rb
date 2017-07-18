@@ -20,12 +20,22 @@ module QuizScraper
 
       trows = -> {
         trows = table.css('tbody').css('tr')
-        trows.each_with_object([]) do |row, result|
-          reference, data = row.css('a[href]').first['href']
-          data = row.css('td').map(&:text)
-          data[1].sub!(/^.-./, '') # location fix
+        trows = trows.each_with_object([]) do |row, result|
+          # fetch data from table row and fix for location
+          data = row.css('td').map(&:text) and data[1].sub!(/^.-./, '')
 
-          result << (data << reference)
+          # create reference for further use and add it to data
+          reference = row.css('a[href]').first['href'] and data << reference
+
+          raw_data = headers.each_with_object({}).with_index do |(key, temp), index|
+            temp[key] = data[index]
+          end
+
+          result << {
+            name: raw_data['pub'],
+            reference: raw_data['reference'],
+            raw_data: raw_data
+          }
         end
       }.call
 
@@ -58,28 +68,28 @@ module QuizScraper
 
       def find_all(page)
         table = Table.(send_request('/search.php'))
-        headers, paginate_links = table[:headers], table[:paginate_links]
-
-        fetch_row = ->(row) {
-          headers.each_with_object({}).with_index do |(key, result), index|
-            result[key] = row[index]
-          end
-        }
 
         case page
         when :default
           table[:trows].each_with_object([]) do |row, result|
-            result << fetch_row.(row)
+            result << QuizScraper::Quiz.new(row, source: self)
           end
         when :all
+          paginate_links = table[:paginate_links]
+
           paginate_links.values.each_with_object([]) do |link, result|
             table = Table.(send_request(link))
-            table[:trows].each { |row| result << fetch_row.(row) }
+
+            table[:trows].each do |row|
+              result << QuizScraper::Quiz.new(row, source: self)
+            end
           end
         else
+          paginate_links = table[:paginate_links]
           table = Table.(send_request(paginate_links[page]))
+
           table[:trows].each_with_object([]) do |row, result|
-            result << fetch_row.(row)
+            result << QuizScraper::Quiz.new(row, source: self)
           end
         end
       end
