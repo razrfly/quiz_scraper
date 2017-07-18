@@ -13,6 +13,20 @@ module QuizScraper
     }
     private_constant(:Credentials)
 
+    Collection = ->(response) {
+      venues = response["hits"]["hits"]
+      venues.each_with_object([]) do |venue, result|
+        raw_data = venue["_source"]
+        reference = raw_data.delete("podioId")
+
+        result << {
+          name: raw_data['venueName'],
+          reference: reference,
+          raw_data: raw_data
+        }
+      end
+    }
+
     class << self
       attr_accessor :base_url, :paginated
 
