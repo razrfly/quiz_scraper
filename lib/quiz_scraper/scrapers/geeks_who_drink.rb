@@ -67,7 +67,9 @@ module QuizScraper
           send_request('/website/venue/_search?from=0&size=2000', :post, params)
         )
 
-        collection.map { |item| QuizScraper::Quiz.new(item, source: self) }
+        collection.map do |item|
+          QuizScraper::Quiz.new(item, source: self, origin: __callee__)
+        end
       end
     end
   end
