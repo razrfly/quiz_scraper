@@ -61,10 +61,14 @@ module QuizScraper
     private_constant(:PubQuiz)
 
     class << self
-      attr_accessor :base_url, :paginated
+      attr_accessor :base_url, :paginated, :scrape_status
 
       PubQuizzer.base_url = 'http://www.pubquizzers.com'
       PubQuizzer.paginated = true
+      PubQuizzer.scrape_status = {
+        :find_all => :partial,
+        :find => :full
+      }
 
       def find_all(page)
         collection = Collection.(send_request('/search.php'))
@@ -100,5 +104,5 @@ module QuizScraper
     end
   end
 
-  private_constant :PubQuizzer
+  private_constant(:PubQuizzer)
 end
