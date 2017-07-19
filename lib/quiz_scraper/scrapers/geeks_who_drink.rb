@@ -67,9 +67,6 @@ module QuizScraper
 
         collection.map { |item| QuizScraper::Quiz.new(item, source: self) }
       end
-
-      def find
-      end
     end
   end
 
