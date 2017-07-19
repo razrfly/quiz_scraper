@@ -1,10 +1,10 @@
 module QuizScraper
   module PubQuizzer
-    Table = ->(response) {
-      table = process(response) { |document| document.css('#rounded-corner') }
+    Collection = ->(response) {
+      data = process(response) { |document| document.css('#rounded-corner') }
 
       @headers ||= -> {
-        headers = table.css('thead').css('tr').css('th').text and headers[0] = ''
+        headers = data.css('thead').css('tr').css('th').text and headers[0] = ''
         headers = headers.split("\n").map do |header|
           parameterize(header.strip, separator: ?_)
         end
@@ -12,26 +12,36 @@ module QuizScraper
       }.call
 
       @paginate_links ||= -> {
-        links = table.css('tfoot').css('tr').css('td.rounded-foot-left').css('b')
+        links = data.css('tfoot').css('tr').css('td.rounded-foot-left').css('b')
         links.css('a[href]').each_with_object({}).with_index do |(link, result), i|
           result[i + 1] = link["href"].sub(%r(#{base_url}), '')
         end
       }.call
 
-      trows = -> {
-        trows = table.css('tbody').css('tr')
-        trows.each_with_object([]) do |row, result|
-          reference, data = row.css('a[href]').first['href']
-          data = row.css('td').map(&:text)
-          data[1].sub!(/^.-./, '') # location fix
+      venues = -> {
+        trows = data.css('tbody').css('tr')
+        venues = trows.each_with_object([]) do |row, result|
+          # fetch data from venue row and fix for location
+          data = row.css('td').map(&:text) and data[1].sub!(/^.-./, '')
 
-          result << (data << reference)
+          # create reference for further use and add it to data
+          reference = row.css('a[href]').first['href'] and data << reference
+
+          raw_data = @headers.each_with_object({}).with_index do |(key, temp), index|
+            temp[key] = data[index]
+          end
+
+          result << {
+            name: raw_data['pub'],
+            reference: raw_data['reference'],
+            raw_data: raw_data
+          }
         end
       }.call
 
-      { headers: @headers, trows: trows, paginate_links: @paginate_links }
+      { headers: @headers, venues: venues, paginate_links: @paginate_links }
     }
-    private_constant(:Table)
+    private_constant(:Collection)
 
     PubQuiz = ->(response) {
       table = process(response) { |document| document.css('#quiz-table') }
@@ -57,29 +67,29 @@ module QuizScraper
       PubQuizzer.paginated = true
 
       def find_all(page)
-        table = Table.(send_request('/search.php'))
-        headers, paginate_links = table[:headers], table[:paginate_links]
-
-        fetch_row = ->(row) {
-          headers.each_with_object({}).with_index do |(key, result), index|
-            result[key] = row[index]
-          end
-        }
+        collection = Collection.(send_request('/search.php'))
 
         case page
         when :default
-          table[:trows].each_with_object([]) do |row, result|
-            result << fetch_row.(row)
+          collection[:venues].each_with_object([]) do |venue, result|
+            result << QuizScraper::Quiz.new(venue, source: self)
           end
         when :all
+          paginate_links = table[:paginate_links]
+
           paginate_links.values.each_with_object([]) do |link, result|
-            table = Table.(send_request(link))
-            table[:trows].each { |row| result << fetch_row.(row) }
+            collection = Collection.(send_request(link))
+
+            collection[:venues].each do |venue|
+              result << QuizScraper::Quiz.new(venue, source: self)
+            end
           end
         else
-          table = Table.(send_request(paginate_links[page]))
-          table[:trows].each_with_object([]) do |row, result|
-            result << fetch_row.(row)
+          paginate_links = table[:paginate_links]
+          collection = Collection.(send_request(paginate_links[page]))
+
+          collection[:venues].each_with_object([]) do |venue, result|
+            result << QuizScraper::Quiz.new(venue, source: self)
           end
         end
       end
