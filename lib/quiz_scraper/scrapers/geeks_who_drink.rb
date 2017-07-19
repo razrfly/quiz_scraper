@@ -1,18 +1,5 @@
 module QuizScraper
   module GeeksWhoDrink
-    Credentials = ->(response) {
-      scripts = process(response) { |document| document.css('script') }
-      script = scripts.children.first
-
-      data = script.text =~ /\{.*\}/ and (data = $& || '{}')
-
-      parsed_data = JSON.parse(data).dig("settings", "elasticsearch", "host")
-      parsed_data =~ /^https:\/\/(.*):(.*)@(.*)\z/
-
-      a = { user: $1, password: $2, host: "https://#{$3}" }
-    }
-    private_constant(:Credentials)
-
     Collection = ->(response) {
       venues = response["hits"]["hits"]
       venues.each_with_object([]) do |venue, result|
