@@ -3,7 +3,7 @@ module QuizScraper
     Collection = ->(response) {
       data = process(response) { |document| document.css('#rounded-corner') }
 
-      @headers ||= -> {
+      headers = -> {
         headers = data.css('thead').css('tr').css('th').text and headers[0] = ''
         headers = headers.split("\n").map do |header|
           parameterize(header.strip, separator: ?_)
@@ -11,7 +11,7 @@ module QuizScraper
         headers << 'reference'
       }.call
 
-      @paginate_links ||= -> {
+      paginate_links = -> {
         links = data.css('tfoot').css('tr').css('td.rounded-foot-left').css('b')
         links.css('a[href]').each_with_object({}).with_index do |(link, result), i|
           result[i + 1] = link["href"].sub(%r(#{base_url}), '')
@@ -27,7 +27,7 @@ module QuizScraper
           # create reference for further use and add it to data
           reference = row.css('a[href]').first['href'] and data << reference
 
-          raw_data = @headers.each_with_object({}).with_index do |(key, temp), index|
+          raw_data = headers.each_with_object({}).with_index do |(key, temp), index|
             temp[key] = data[index]
           end
 
@@ -39,7 +39,7 @@ module QuizScraper
         end
       }.call
 
-      { headers: @headers, venues: venues, paginate_links: @paginate_links }
+      { headers: headers, venues: venues, paginate_links: paginate_links }
     }
     private_constant(:Collection)
 
@@ -75,7 +75,7 @@ module QuizScraper
             result << QuizScraper::Quiz.new(venue, source: self)
           end
         when :all
-          paginate_links = table[:paginate_links]
+          paginate_links = collection[:paginate_links]
 
           paginate_links.values.each_with_object([]) do |link, result|
             collection = Collection.(send_request(link))
@@ -85,7 +85,7 @@ module QuizScraper
             end
           end
         else
-          paginate_links = table[:paginate_links]
+          paginate_links = collection[:paginate_links]
           collection = Collection.(send_request(paginate_links[page]))
 
           collection[:venues].each_with_object([]) do |venue, result|
