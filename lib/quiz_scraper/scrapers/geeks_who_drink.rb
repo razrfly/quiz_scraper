@@ -15,10 +15,13 @@ module QuizScraper
     }
 
     class << self
-      attr_accessor :base_url, :paginated
+      attr_accessor :base_url, :paginated, :scrape_status
 
       GeeksWhoDrink.base_url = 'https://www.geekswhodrink.com'
       GeeksWhoDrink.paginated = false
+      GeeksWhoDrink.scrape_status = {
+        :find_all => :full
+      }
 
       def find_all
         params = {
