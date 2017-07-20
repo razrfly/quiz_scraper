@@ -76,13 +76,13 @@ module QuizScraper
 
       def find_all(page)
         collection = Collection.(send_request('/search.php'))
+        status = scrape_status[__callee__]
 
         case page
         when :default
           collection[:venues].each_with_object([]) do |venue, result|
-            result << QuizScraper::Quiz.new(
-              venue, source: self, origin: __callee__
-            )
+            params = venue.merge!({ scrape_status: status })
+            result << QuizScraper::Quiz.new(params)
           end
         when :all
           paginate_links = collection[:paginate_links]
@@ -91,9 +91,8 @@ module QuizScraper
             collection = Collection.(send_request(link))
 
             collection[:venues].each do |venue|
-              result << QuizScraper::Quiz.new(
-                venue, source: self, origin: __callee__
-              )
+              params = venue.merge!({ scrape_status: status })
+              result << QuizScraper::Quiz.new(params)
             end
           end
         else
@@ -101,9 +100,8 @@ module QuizScraper
           collection = Collection.(send_request(paginate_links[page]))
 
           collection[:venues].each_with_object([]) do |venue, result|
-            result << QuizScraper::Quiz.new(
-              venue, source: self, origin: __callee__
-            )
+            params = venue.merge!({ scrape_status: status })
+            result << QuizScraper::Quiz.new(params)
           end
         end
       end
