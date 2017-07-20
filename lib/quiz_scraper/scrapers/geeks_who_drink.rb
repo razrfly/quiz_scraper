@@ -68,7 +68,8 @@ module QuizScraper
         )
 
         collection.map do |item|
-          QuizScraper::Quiz.new(item, source: self, origin: __callee__)
+          params = item.merge!({ scrape_status: scrape_status[__callee__] })
+          QuizScraper::Quiz.new(params)
         end
       end
     end
