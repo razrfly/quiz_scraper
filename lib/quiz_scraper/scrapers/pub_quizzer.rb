@@ -43,19 +43,23 @@ module QuizScraper
     }
     private_constant(:Collection)
 
-    PubQuiz = ->(response) {
+    PubQuiz = ->(response, reference) {
       table = process(response) { |document| document.css('#quiz-table') }
       trows = table.css('tr')
       text = ->(row) { row.css('td').first.text.sub(/^\s/, '') }
       link = ->(row) { row.css('td').css('a[href]').first['href'] }
 
+      headers = %w(name location post_code phone website frequency entry_fee
+      jackpot other_prices max_team_size verified)
+
+      raw_data = headers.each_with_object({}).with_index do |(key, temp), index|
+        temp[key] = key == 'website' ? link.(trows[index]) : text.(trows[index])
+      end
+
       {
-        'name' => text.(trows[0]), 'location' => text.(trows[1]),
-        'post_code' => text.(trows[2]), 'phone' => text.(trows[3]),
-        'website' => link.(trows[4]), 'frequency' => text.(trows[5]),
-        'entry_fee' => text.(trows[6]), 'jackpot' => text.(trows[7]),
-        'other_prices' => text.(trows[8]), 'max_team_size' => text.(trows[9]),
-        'verified' => text.(trows[10])
+        name: raw_data['name'],
+        reference: reference,
+        raw_data: raw_data
       }
     }
     private_constant(:PubQuiz)
