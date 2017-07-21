@@ -1,10 +1,6 @@
 require "spec_helper"
 
 RSpec.describe QuizScraper::Scraper do
-  it "has a version number" do
-    expect(QuizScraper::VERSION).not_to be nil
-  end
-
   let(:namespace) { QuizScraper }
   let(:adapter) { QuizScraper::Scraper }
 
