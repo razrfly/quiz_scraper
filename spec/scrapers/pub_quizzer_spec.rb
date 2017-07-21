@@ -51,14 +51,19 @@ RSpec.describe 'QuizScraper::PubQuizzer' do
         </body>
       </html>
     BORK
+
     stub_request(:get, "http://www.pubquizzers.com/search.php").
       with(headers: {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).
       to_return(status: 200, :body => response, headers: {})
+
     pubs = client.find_all
     pub = pubs.first
 
     expect(pubs.size).to eq 2
-    expect(pub).to include(
+
+    expect(pub.name).to eq("The Pilot Inn")
+    expect(pub.reference).to eq("/pub-quiz/84/the-pilot-inn")
+    expect(pub.raw_data).to include(
       "pub"=>"The Pilot Inn",
       "location"=>"Greenwich, London",
       "frequency"=>"Tue @ 20:00",
@@ -114,9 +119,12 @@ RSpec.describe 'QuizScraper::PubQuizzer' do
     stub_request(:get, "http://www.pubquizzers.com/pub-quiz/84/the-pilot-inn").
       with(headers: {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).
       to_return(status: 200, :body => response, headers: {})
+
     pub = client.find('/pub-quiz/84/the-pilot-inn')
 
-    expect(pub).to include(
+    expect(pub.name).to eq("The Pilot Inn")
+    expect(pub.reference).to eq("/pub-quiz/84/the-pilot-inn")
+    expect(pub.raw_data).to include(
       "name"=>"The Pilot Inn",
       "location"=>"Greenwich, London, UK",
       "post_code"=>"SE10 0BE",
