@@ -4,9 +4,9 @@ module QuizScraper
 
     ResponseError = Class.new(StandardError)
 
-    def self.extended(client)
-      client.include(HTTParty)
-      client.base_uri(client.base_url)
+    def self.extended(scraper)
+      scraper.include(HTTParty)
+      scraper.base_uri(scraper.base_url)
     end
 
     private
