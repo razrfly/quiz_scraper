@@ -15,10 +15,13 @@ module QuizScraper
     }
 
     class << self
-      attr_accessor :base_url, :paginated
+      attr_accessor :base_url, :paginated, :scrape_status
 
       GeeksWhoDrink.base_url = 'https://www.geekswhodrink.com'
       GeeksWhoDrink.paginated = false
+      GeeksWhoDrink.scrape_status = {
+        :find_all => :full
+      }
 
       def find_all
         params = {
@@ -64,7 +67,10 @@ module QuizScraper
           send_request('/website/venue/_search?from=0&size=2000', :post, params)
         )
 
-        collection.map { |item| QuizScraper::Quiz.new(item, source: self) }
+        collection.map do |item|
+          params = item.merge!({ scrape_status: scrape_status[__callee__] })
+          QuizScraper::Quiz.new(params)
+        end
       end
     end
   end
