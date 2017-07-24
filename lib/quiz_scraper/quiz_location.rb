@@ -11,12 +11,15 @@ module QuizScraper
       end
     end
 
+    private
+
     def method_missing(name, *args)
-      instance_variable_get("@#{name}") || super
+      instance_variable_defined?("@#{name}") ?
+        instance_variable_get("@#{name}") : super
     end
 
     def respond_to_missing?(name, include_private = false)
-      instance_variable_get("@#{name}") || super
+      instance_variable_defined?("@#{name}") || super
     end
   end
 end
