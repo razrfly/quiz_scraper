@@ -44,8 +44,11 @@ module QuizScraper
     private_constant(:Collection)
 
     PubQuiz = ->(response, reference) {
-      table = process(response) { |document| document.css('#quiz-table') }
-      trows = table.css('tr')
+      content = process(response) { |document| document.css('#content') }
+
+      trows = content.css('#quiz-table').css('tr')
+      coordinates = content.css('.quiz-right').css('iframe').attr('src')
+
       text = ->(row) { row.css('td').first.text.sub(/^\s/, '') }
       link = ->(row) { row.css('td').css('a[href]').first['href'] }
 
@@ -56,9 +59,26 @@ module QuizScraper
         temp[key] = key == 'website' ? link.(trows[index]) : text.(trows[index])
       end
 
+      address, city, country = raw_data['location'].scan(/\w+/)
+      post_code, state = raw_data['post_code'], raw_data['state']
+      longitude, latitude = coordinates.value =~ /lat=(.*)&lon=(.*)/ && [$1, $2]
+
+      location = {
+        address: address,
+        city: city,
+        country: country,
+        state: state,
+        post_code: post_code,
+        coordinates: {
+          longitude: longitude,
+          latitude: latitude
+        }
+      }
+
       {
         name: raw_data['name'],
         reference: reference,
+        location: location,
         raw_data: raw_data
       }
     }
