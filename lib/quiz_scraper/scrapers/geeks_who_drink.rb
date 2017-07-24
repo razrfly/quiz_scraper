@@ -4,11 +4,26 @@ module QuizScraper
       venues = response["hits"]["hits"]
       venues.each_with_object([]) do |venue, result|
         raw_data = venue["_source"]
+
         reference = raw_data.delete("podioId")
+        longitude, latitude = raw_data["location"]
+
+        location = {
+          address: raw_data["address"],
+          city: raw_data["city"],
+          country: raw_data["country"],
+          state: raw_data["state"],
+          post_code: raw_data["zip"],
+          coordinates: {
+            longitude: longitude,
+            latitude: latitude
+          }
+        }
 
         result << {
           name: raw_data['venueName'],
           reference: reference,
+          location: location,
           raw_data: raw_data
         }
       end
