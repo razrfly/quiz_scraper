@@ -10,5 +10,13 @@ module QuizScraper
         instance_variable_set("@#{key}", value)
       end
     end
+
+    def method_missing(name, *args)
+      instance_variable_get("@#{name}") || super
+    end
+
+    def respond_to_missing?(name, include_private = false)
+      instance_variable_get("@#{name}") || super
+    end
   end
 end
