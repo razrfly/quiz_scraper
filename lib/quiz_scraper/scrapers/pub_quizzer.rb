@@ -127,8 +127,12 @@ module QuizScraper
       end
 
       def find(reference)
-        params = PubQuiz.(send_request(reference), reference)
-        params = params.merge!({ scrape_status: scrape_status[__callee__] })
+        begin
+          params = PubQuiz.(send_request(reference), reference)
+          params.merge!({ scrape_status: scrape_status[__callee__] })
+        rescue QuizScraper::RequestHandler::RequestError
+          params = {scrape_status: :partial}
+        end
 
         QuizScraper::Quiz.new(params)
       end
