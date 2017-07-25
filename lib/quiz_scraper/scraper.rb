@@ -8,7 +8,7 @@ module QuizScraper
 
     def find_all(params = {})
       page = extract_page_param(params) if scraper.paginated
-      page && scraper.find_all(page) || scraper.find_all
+      page && scraper.find_all(page).uniq || scraper.find_all.uniq
     end
 
     def find(reference)
