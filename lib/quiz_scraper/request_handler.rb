@@ -14,12 +14,17 @@ module QuizScraper
     def send_request(url = '', method = :get, **opts)
       host = opts.delete(:host)
 
-      response = host.nil? ?
-      send(method, url, opts) : HTTParty.send(method, (host + url), opts)
+      begin
+        if host.nil?
+          send(method, url, opts)
+        else
+          HTTParty.send(method, (host + url), opts)
+        end
 
-      raise(ResponseError) unless response.success?
-
-      response.parsed_response
+        response.success? ? response.parsed_response : raise(ResponseError)
+      rescue URI::Error
+        raise(ResponseError)
+      end
     end
   end
 end
