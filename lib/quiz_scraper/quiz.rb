@@ -20,7 +20,15 @@ module QuizScraper
       scrape_status == :partial
     end
 
+    def eql?(other)
+      hash == other.send(:hash)
+    end
+
     private
+
+    def hash
+      @reference.hash
+    end
 
     def build_quiz_location(params)
       @location = QuizLocation.new(params)
