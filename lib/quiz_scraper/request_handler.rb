@@ -15,13 +15,13 @@ module QuizScraper
       host = opts.delete(:host)
 
       begin
-        if host.nil?
-          send(method, url, opts)
-        else
-          HTTParty.send(method, (host + url), opts)
-        end
+        response =
+          host.nil? ?
+            send(method, url, opts) : HTTParty.send(method, (host + url), opts)
 
-        response.success? ? response.parsed_response : raise(ResponseError)
+        raise(ResponseError) unless response.success?
+
+        response.parsed_response
       rescue URI::Error
         raise(ResponseError)
       end
