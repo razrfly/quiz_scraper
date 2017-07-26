@@ -60,7 +60,7 @@ module QuizScraper
       end
 
       address, region, city, country, post_code =
-        nil, *raw_data['location'].scan(/\w+/), raw_data['post_code']
+        nil, *raw_data['location'].split(', '), raw_data['post_code']
 
       longitude, latitude = coordinates.value =~ /lat=(.*)&lon=(.*)/ && [$1, $2]
 
