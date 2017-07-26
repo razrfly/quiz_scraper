@@ -11,7 +11,7 @@ module QuizScraper
         location = {
           address: raw_data["address"],
           city: raw_data["city"],
-          country: raw_data["country"],
+          country: 'US',
           state: raw_data["state"],
           post_code: raw_data["zip"],
           coordinates: {

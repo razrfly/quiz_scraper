@@ -59,15 +59,16 @@ module QuizScraper
         temp[key] = key == 'website' ? link.(trows[index]) : text.(trows[index])
       end
 
-      address, city, country = raw_data['location'].scan(/\w+/)
-      post_code, state = raw_data['post_code'], raw_data['state']
+      address, region, city, country, post_code =
+        nil, *raw_data['location'].scan(/\w+/), raw_data['post_code']
+
       longitude, latitude = coordinates.value =~ /lat=(.*)&lon=(.*)/ && [$1, $2]
 
       location = {
         address: address,
         city: city,
         country: country,
-        state: state,
+        region: region,
         post_code: post_code,
         coordinates: {
           longitude: longitude,
