@@ -130,7 +130,7 @@ module QuizScraper
         begin
           params = PubQuiz.(send_request(reference), reference)
           params.merge!({ scrape_status: scrape_status[__callee__] })
-        rescue QuizScraper::RequestHandler::RequestError
+        rescue QuizScraper::RequestHandler::ResponseError
           params = {scrape_status: :partial}
         end
 
