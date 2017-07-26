@@ -12,7 +12,7 @@ module QuizScraper
           address: raw_data["address"],
           city: raw_data["city"],
           country: 'US',
-          state: raw_data["state"],
+          region: raw_data["state"],
           post_code: raw_data["zip"],
           coordinates: {
             longitude: longitude,
