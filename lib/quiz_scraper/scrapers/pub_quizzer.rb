@@ -64,6 +64,9 @@ module QuizScraper
 
       longitude, latitude = coordinates.value =~ /lat=(.*)&lon=(.*)/ && [$1, $2]
 
+      quiz_days = raw_data['frequency'] =~ /^(\w+),\s(\w+)(\W+)(\d{1,2}:\d{2})$/
+      quiz_days &&= Array($1)
+
       location = {
         address: address,
         city: city,
@@ -80,6 +83,7 @@ module QuizScraper
         name: raw_data['name'],
         reference: reference,
         location: location,
+        quiz_days: quiz_days,
         raw_data: raw_data
       }
     }
