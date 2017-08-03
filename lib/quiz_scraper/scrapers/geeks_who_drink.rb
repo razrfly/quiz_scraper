@@ -7,7 +7,7 @@ module QuizScraper
 
         reference = raw_data.delete("podioId")
         longitude, latitude = raw_data["location"]
-        quiz_days = raw_data["quizDays"]
+        quiz_day = raw_data["quizDays"]
 
         location = {
           address: raw_data["address"],
@@ -25,7 +25,7 @@ module QuizScraper
           name: raw_data['venueName'],
           reference: reference,
           location: location,
-          quiz_days: quiz_days,
+          quiz_day: quiz_day,
           raw_data: raw_data
         }
       end
