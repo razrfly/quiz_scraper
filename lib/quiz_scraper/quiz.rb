@@ -1,6 +1,7 @@
 module QuizScraper
   class Quiz
-    attr_reader :name, :scrape_status, :reference, :location, :raw_data
+    attr_reader :name, :scrape_status, :reference, :location,
+      :quiz_days, :raw_data
 
     def initialize(params = {})
       @scrape_status = params.delete(:scrape_status)
