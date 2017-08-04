@@ -7,7 +7,7 @@ module QuizScraper
 
         reference = raw_data.delete("podioId")
         longitude, latitude = raw_data["location"]
-        quiz_day = raw_data["quizDays"]
+        quiz_day = raw_data["quizDays"].first
 
         location = {
           address: raw_data["address"],
@@ -51,7 +51,7 @@ module QuizScraper
             "Authorization" => "Basic d2Vic2l0ZTpxaGJnbDVsczJ1Zm12cjI1aHFwNGhtdGVyaWZhbnplNw==",
             "Content-Type" => "application/x-www-form-urlencoded; charset=UTF-8",
             "Referer" => "https://www.geekswhodrink.com/schedule",
-            "origin" => "https://www.geekswhodrink.com",
+            "Origin" => "https://www.geekswhodrink.com",
             "DNT" => "1",
             "Connection" => "keep-alive"
           },
