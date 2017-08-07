@@ -62,7 +62,7 @@ module QuizScraper
       post_code, country, city, region, address =
         raw_data['post_code'], *raw_data['location'].split(', ').reverse
 
-      longitude, latitude = coordinates.value =~ /lat=(.*)&lon=(.*)/ && [$1, $2]
+      latitude, longitude = coordinates.value =~ /lat=(.*)&lon=(.*)/ && [$1, $2]
 
       quiz_day = raw_data['frequency'] =~ /^(\w+),\s(\w+)(\W+)(\d{1,2}:\d{2})$/
       quiz_day &&= $1
