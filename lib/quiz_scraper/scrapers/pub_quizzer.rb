@@ -48,6 +48,7 @@ module QuizScraper
 
       trows = content.css('#quiz-table').css('tr')
       coordinates = content.css('.quiz-right').css('iframe').attr('src')
+      image = content.css('.quiz-left').css('img').attr('src')
 
       text = ->(row) { row.css('td').first.text.sub(/^\s/, '') }
       link = ->(row) { row.css('td').css('a[href]').first['href'] }
@@ -64,8 +65,10 @@ module QuizScraper
 
       latitude, longitude = coordinates.value =~ /lat=(.*)&lon=(.*)/ && [$1, $2]
 
-      quiz_day = raw_data['frequency'] =~ /^(\w+),\s(\w+)(\W+)(\d{1,2}:\d{2})$/
-      quiz_day &&= $1
+      quiz_day = raw_data['frequency'] =~ /^(\w+),\s(\w+)(\W+)(\d{1,2}:\d{2})$/ && $1
+
+      image_url = image.value =~ /(\/images\/pubs\/.*.jpg$)/ && $1
+      image_url &&= PubQuizzer.base_url + image_url
 
       location = {
         address: address,
@@ -84,6 +87,7 @@ module QuizScraper
         reference: reference,
         location: location,
         quiz_day: quiz_day,
+        image_url: image_url,
         raw_data: raw_data
       }
     }
