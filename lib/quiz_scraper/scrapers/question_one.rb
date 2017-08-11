@@ -33,7 +33,9 @@ module QuizScraper
 
         location = {
           address: address.join(' '),
+          city: nil,
           country: country,
+          region: nil,
           post_code: post_code,
           coordinates: {
             longitude: longitude,
