@@ -26,7 +26,7 @@ module QuizScraper
         longitude_data = component.('long', entry)
         longitude = longitude_data.text
 
-        image_url = entry.css('thumbnail').attr('url').value
+        image_url = entry.css('thumbnail').attr('url').value =~ /^\/\/(.*)/ && $1
 
         quiz_day_data = component.('startdate', entry)
         quiz_day = DateTime.parse(quiz_day_data.text).strftime('%a')
