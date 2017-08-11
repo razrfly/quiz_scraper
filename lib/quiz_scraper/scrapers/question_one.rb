@@ -1,5 +1,7 @@
 module QuizScraper
   module QuestionOne
+    EDITIONS = %w(uk us au).freeze
+
     Collection = ->(response) {
       data = process(response) { |document| document.css('entry') }
 
@@ -59,6 +61,14 @@ module QuizScraper
       }
 
       def find_all
+        collection = EDITIONS.inject([]) do |result, edition|
+          result << Collection.(send_request("/#{edition}/events.atom"))
+        end.flatten
+
+        collection.map do |item|
+          params = item.merge!({ scrape_status: scrape_status[__callee__] })
+          QuizScraper::Quiz.new(params)
+        end
       end
     end
   end
