@@ -1,5 +1,54 @@
 module QuizScraper
   module QuestionOne
+    Collection = ->(response) {
+      data = process(response) { |document| document.css('entry') }
+
+      attributes = %w(title location lat long thumbnail startdate)
+      component = ->(attribute, entry) { entry.css(attribute).shift }
+
+      data = data.each_with_object([]) do |entry, result|
+
+        next unless attributes.all? { |attribute| component.(attribute, entry) }
+
+        name_data = component.('title', entry)
+        name = name_data.text =~ /^(.*)\sPub\sQuiz$/ && $1
+
+        reference = entry.css('link').attr('href').value
+
+        location_data = component.('location', entry)
+        country, post_code, *address = location_data.text.split(', ').reverse
+
+        latitude_data = component.('lat', entry)
+        latitude = latitude_data.text
+
+        longitude_data = component.('long', entry)
+        longitude = longitude_data.text
+
+        image_url = entry.css('thumbnail').attr('url').value
+
+        quiz_day_data = component.('startdate', entry)
+        quiz_day = DateTime.parse(quiz_day_data.text).strftime('%a')
+
+        location = {
+          address: address.join(' '),
+          country: country,
+          post_code: post_code,
+          coordinates: {
+            longitude: longitude,
+            latitude: latitude
+          }
+        }
+
+        result << {
+          name: name,
+          reference: reference,
+          location: location,
+          quiz_day: quiz_day,
+          image_url: image_url
+        }
+      end
+    }
+
     class << self
       attr_accessor :base_url, :paginated, :scrape_status
 
