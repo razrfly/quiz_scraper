@@ -96,6 +96,9 @@ RSpec.describe 'QuizScraper::PubQuizzer' do
                 <div class="quiz-right">
                   <iframe name="ifrm2" src="../../../quiz-maps.php?q_u=84&lat=51.496201&lon=0.010140">
                 </div>
+                <div class="quiz-left">
+                  <img src="../../../images/pubs/the-pilot-inn_84.jpg">
+                </div>
               </div>
               <table id="quiz-table">
                 <tbody>
@@ -155,6 +158,7 @@ RSpec.describe 'QuizScraper::PubQuizzer' do
 
       expect(pub.name).to eq("The Pilot Inn")
       expect(pub.reference).to eq("/pub-quiz/84/the-pilot-inn")
+      expect(pub.image_url).to eq("http://www.pubquizzers.com/images/pubs/the-pilot-inn_84.jpg")
       expect(pub.raw_data).to include(
         "name"=>"The Pilot Inn",
         "location"=>"Greenwich, London, UK",
