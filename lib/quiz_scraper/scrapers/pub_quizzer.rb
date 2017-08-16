@@ -1,5 +1,7 @@
 module QuizScraper
   module PubQuizzer
+    require "quiz_scraper/utils/country_mapper"
+
     Collection = ->(response) {
       data = process(response) { |document| document.css('#rounded-corner') }
 
@@ -73,7 +75,7 @@ module QuizScraper
       location = {
         address: address,
         city: city,
-        country: country,
+        country: map_country(country),
         region: region,
         post_code: post_code,
         coordinates: {
@@ -144,6 +146,12 @@ module QuizScraper
         end
 
         QuizScraper::Quiz.new(params)
+      end
+
+      private
+
+      def map_country(country)
+        QuizScraper::CountryMapper.map(country)
       end
     end
   end
