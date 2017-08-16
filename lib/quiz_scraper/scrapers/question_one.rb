@@ -20,6 +20,9 @@ module QuizScraper
         location_data = component.('location', entry)
         country, post_code, *address = location_data.text.split(', ').reverse
 
+        city_data = component.('region', entry)
+        city = city_data.text
+
         latitude_data = component.('lat', entry)
         latitude = latitude_data.text
 
@@ -33,7 +36,7 @@ module QuizScraper
 
         location = {
           address: address.join(' '),
-          city: nil,
+          city: city,
           country: country,
           region: nil,
           post_code: post_code,
