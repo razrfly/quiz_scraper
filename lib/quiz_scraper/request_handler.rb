@@ -6,7 +6,7 @@ module QuizScraper
 
     def self.extended(scraper)
       scraper.include(HTTParty)
-      scraper.base_uri(scraper.base_url)
+      scraper.base_uri(scraper.config(:base_url))
     end
 
     private

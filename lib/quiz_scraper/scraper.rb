@@ -7,7 +7,7 @@ module QuizScraper
     end
 
     def find_all(params = {})
-      page = extract_page_param(params) if scraper.paginated
+      page = extract_page_param(params) if scraper.config(:paginated)
       page && scraper.find_all(page).uniq || scraper.find_all.uniq
     end
 
