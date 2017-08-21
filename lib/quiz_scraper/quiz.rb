@@ -1,10 +1,11 @@
 module QuizScraper
   class Quiz
-    attr_reader :name, :scrape_status, :reference, :location,
+    attr_reader :name, :scrape_status, :source, :reference, :location,
       :quiz_day, :image_url, :raw_data
 
     def initialize(params = {})
       @scrape_status = params.delete(:scrape_status)
+      @source = params.delete(:source)
 
       build_quiz_location(params.delete(:location)) if scrape_full?
 

@@ -16,7 +16,7 @@ module QuizScraper
       paginate_links = -> {
         links = data.css('tfoot').css('tr').css('td.rounded-foot-left').css('b')
         links.css('a[href]').each_with_object({}).with_index do |(link, result), i|
-          result[i + 1] = link["href"].sub(%r(#{base_url}), '')
+          result[i + 1] = link["href"].sub(%r(#{config(:base_url)}), '')
         end
       }.call
 
@@ -70,7 +70,7 @@ module QuizScraper
       quiz_day = raw_data['frequency'] =~ /^(\w+),\s(\w+)(\W+)(\d{1,2}:\d{2})$/ && $1
 
       image_url = image.value =~ /(\/images\/pubs\/.*.jpg$)/ && $1
-      image_url &&= PubQuizzer.base_url + image_url
+      image_url &&= config(:base_url) + image_url
 
       location = {
         address: address,
@@ -96,23 +96,28 @@ module QuizScraper
     private_constant(:PubQuiz)
 
     class << self
-      attr_accessor :base_url, :paginated, :scrape_status
+      CONFIG = {
+        :base_url => 'http://www.pubquizzers.com',
+        :paginated => true,
+        :source => 'PubQuizzer',
+        :scrape_status => {
+          :find_all => :partial,
+          :find => :full
+        }
+      }.freeze
 
-      PubQuizzer.base_url = 'http://www.pubquizzers.com'
-      PubQuizzer.paginated = true
-      PubQuizzer.scrape_status = {
-        :find_all => :partial,
-        :find => :full
-      }
+      def config(key = nil)
+        CONFIG[key]
+      end
 
       def find_all(page)
         collection = Collection.(send_request('/search.php'))
-        status = scrape_status[__callee__]
+        status, source = config(:scrape_status)[__callee__], config(:source)
 
         case page
         when :default
           collection[:venues].each_with_object([]) do |venue, result|
-            params = venue.merge!({ scrape_status: status })
+            params = venue.merge!({ scrape_status: status, source: source })
             result << QuizScraper::Quiz.new(params)
           end
         when :all
@@ -122,7 +127,7 @@ module QuizScraper
             collection = Collection.(send_request(link))
 
             collection[:venues].each do |venue|
-              params = venue.merge!({ scrape_status: status })
+              params = venue.merge!({ scrape_status: status, source: source })
               result << QuizScraper::Quiz.new(params)
             end
           end
@@ -131,18 +136,20 @@ module QuizScraper
           collection = Collection.(send_request(paginate_links[page]))
 
           collection[:venues].each_with_object([]) do |venue, result|
-            params = venue.merge!({ scrape_status: status })
+            params = venue.merge!({ scrape_status: status, source: source })
             result << QuizScraper::Quiz.new(params)
           end
         end
       end
 
       def find(reference)
+        status, source = config(:scrape_status)[__callee__], config(:source)
+
         begin
           params = PubQuiz.(send_request(reference), reference)
-          params.merge!({ scrape_status: scrape_status[__callee__] })
+          params.merge!({ scrape_status: status, source: source })
         rescue QuizScraper::RequestHandler::ResponseError
-          params = {scrape_status: :partial}
+          params = { scrape_status: :partial, source: source }
         end
 
         QuizScraper::Quiz.new(params)
