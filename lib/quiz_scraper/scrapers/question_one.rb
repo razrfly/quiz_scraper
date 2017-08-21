@@ -57,21 +57,28 @@ module QuizScraper
     }
 
     class << self
-      attr_accessor :base_url, :paginated, :scrape_status
+      CONFIG = {
+        :base_url => 'http://questionone.com',
+        :paginated => false,
+        :source => 'QuestionOne',
+        :scrape_status => {
+          :find_all => :full,
+        }
+      }.freeze
 
-      QuestionOne.base_url = 'http://questionone.com'
-      QuestionOne.paginated = false
-      QuestionOne.scrape_status = {
-        :find_all => :full
-      }
+      def config(key = nil)
+        CONFIG[key]
+      end
 
       def find_all
+        status, source = config(:scrape_status)[__callee__], config(:source)
+
         collection = EDITIONS.inject([]) do |result, edition|
           result << Collection.(send_request("/#{edition}/events.atom"))
         end.flatten
 
         collection.map do |item|
-          params = item.merge!({ scrape_status: scrape_status[__callee__] })
+          params = item.merge!({ scrape_status: status, source: source })
           QuizScraper::Quiz.new(params)
         end
       end
