@@ -26,6 +26,7 @@ module QuizScraper
           reference: reference,
           location: location,
           quiz_day: quiz_day,
+          image_url: nil,
           raw_data: raw_data
         }
       end
